@@ -1,0 +1,14 @@
+<Window x:Class="XenoSuite.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        Title="XenoSuite" Width="1500" Height="940" MinWidth="900" MinHeight="560" Background="#1e1f22"
+        Icon="xenosuite.ico">
+    <!-- One WebView per tab, kept alive: switching tabs is a visibility flip (no reload, Monitor keeps its history).
+         Hidden WebViews are throttled by Chromium, so the inactive tabs cost almost nothing. -->
+    <Grid>
+        <wv2:WebView2 x:Name="webMon" DefaultBackgroundColor="#1e1f22" />
+        <wv2:WebView2 x:Name="webDisk" DefaultBackgroundColor="#1e1f22" Visibility="Collapsed" />
+        <wv2:WebView2 x:Name="webAudit" DefaultBackgroundColor="#1e1f22" Visibility="Collapsed" />
+    </Grid>
+</Window>

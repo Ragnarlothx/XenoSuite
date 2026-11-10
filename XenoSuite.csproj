@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AssemblyName>XenoSuite</AssemblyName>
+    <RootNamespace>XenoSuite</RootNamespace>
+    <Company>Xeno</Company>
+    <Authors>Xeno</Authors>
+    <Product>XenoSuite</Product>
+    <Version>1.1.0</Version>
+    <PlatformTarget>x64</PlatformTarget>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>false</SelfContained>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- workstation GC: server GC keeps a heap per core (hundreds of MB idle) — wrong trade for an always-open monitor -->
+    <ServerGarbageCollection>false</ServerGarbageCollection>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
+    <TieredPGO>true</TieredPGO>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>xenosuite.ico</ApplicationIcon>
+    <NoWarn>CA1416;CS0168;CS0649</NoWarn>
+    <!-- keep this PC's folder paths out of the exe and .pdb -->
+    <PathMap>$(MSBuildProjectDirectory)=src</PathMap>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <ItemGroup>
+    <Resource Include="xenosuite.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2903.40" />
+    <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.6" />
+    <PackageReference Include="System.Management" Version="10.0.2" />
+    <PackageReference Include="System.IO.Hashing" Version="8.0.0" />
+    <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="8.0.1" />
+    <PackageReference Include="System.ServiceProcess.ServiceController" Version="8.0.1" />
+    <PackageReference Include="System.Diagnostics.EventLog" Version="8.0.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="dist\**;bin\**;obj\**" />
+    <Content Include="web\**\*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

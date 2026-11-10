@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>XenoDisk</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="dark">
+<div id="boot"><h1><b>XENO</b>DISK</h1><div class="bl" id="boot-log"><div>init webview… ok</div></div></div>
+<div id="app" class="hidden">
+  <div id="menubar">
+    <span class="brand">XENO</span><span class="brand2">DISK</span>
+    <span class="mtop" data-menu="file">File</span>
+    <span class="mtop" data-menu="tools">Tools</span>
+    <span class="mtop" data-menu="view">View</span>
+    <span class="mtop" data-menu="help">Help</span>
+    <span class="mright"><span id="mb-admin"></span><span id="mb-host"></span><span id="mb-clock"></span></span>
+  </div>
+  <div id="main">
+    <div id="activitybar">
+      <button data-view="disks" class="act active" title="Disks &amp; partitions (1)">&#xEDA2;</button>
+      <button data-view="volumes" class="act" title="Volumes (2)">&#xE1D3;</button>
+      <button data-view="health" class="act" title="Health &amp; SMART (3)">&#xE95E;</button>
+      <button data-view="finder" class="act" title="Find files (4)">&#xE721;</button>
+      <button data-view="space" class="act" title="Space analyzer (5)">&#xE9D9;</button>
+      <button data-view="dupes" class="act" title="Duplicate finder (6)">&#xE8C8;</button>
+      <button data-view="recover" class="act" title="Recover / restore (7)">&#xE777;</button>
+      <button data-view="usb" class="act" title="USB &amp; removable (8)">&#xECF0;</button>
+      <button data-view="tools" class="act" title="Tools: image, benchmark, chkdsk (9)">&#xE90F;</button>
+      <div class="grow"></div>
+      <button data-view="settings" class="act" title="Settings">&#xE713;</button>
+    </div>
+    <div id="content">
+      <section id="view-disks" class="view active">
+        <div class="toolbar">
+          <button class="btn sm" id="dk-refresh">&#xE72C; Refresh</button>
+          <button class="btn sm sec" id="dk-diskmgmt">Open Disk Management</button>
+          <span class="grow"></span>
+          <span class="muted mono" id="dk-count"></span>
+        </div>
+        <div class="vbody" id="dk-body"></div>
+      </section>
+      <section id="view-volumes" class="view">
+        <div class="toolbar">
+          <input type="search" id="vl-filter" class="filter" placeholder="Filter volumes…">
+          <span class="grow"></span><button class="btn sm sec" id="vl-refresh">Refresh</button>
+        </div>
+        <div class="tablewrap"><table class="t" id="vl-table"><thead></thead><tbody></tbody></table></div>
+      </section>
+      <section id="view-health" class="view">
+        <div class="toolbar"><button class="btn sm" id="hl-refresh">Refresh health</button><span class="grow"></span></div>
+        <div class="vbody" id="hl-body"></div>
+      </section>
+      <section id="view-finder" class="view">
+        <div class="toolbar" style="gap:10px">
+          <label>Folder <input id="fd-root" style="width:240px" placeholder="C:\ or \\server\share"></label>
+          <button class="btn sm sec" id="fd-pick">Browse…</button>
+          <label>Match <input id="fd-pattern" style="width:120px" placeholder="*.log;*.tmp"></label>
+          <label>Min MB <input id="fd-minmb" type="number" style="width:70px" value="0"></label>
+          <label>Older than <input id="fd-older" type="number" style="width:60px" value="0"> days</label>
+          <label>Sort
+            <select id="fd-sort"><option value="size">Largest</option><option value="oldest">Oldest</option><option value="newest">Newest</option><option value="accessed">Least used</option><option value="name">Name</option></select>
+          </label>
+          <button class="btn sm" id="fd-go">Find</button>
+          <span class="grow"></span>
+          <span class="muted mono" id="fd-count"></span>
+          <button class="btn sm sec" id="fd-move">Move selected…</button>
+          <button class="btn sm danger" id="fd-recycle">Recycle selected</button>
+        </div>
+        <div class="tablewrap"><table class="t" id="fd-table"><thead></thead><tbody></tbody></table></div>
+      </section>
+      <section id="view-space" class="view">
+        <div class="toolbar">
+          <label>Folder <input id="sp-root" style="width:240px" placeholder="C:\"></label>
+          <button class="btn sm sec" id="sp-pick">Browse…</button>
+          <button class="btn sm" id="sp-go">Analyze</button>
+          <span class="grow"></span><span class="muted mono" id="sp-sub"></span>
+        </div>
+        <div class="vbody"><div class="crumbs" id="sp-crumbs"></div><div class="tree" id="sp-tree" style="margin-top:10px"></div></div>
+      </section>
+      <section id="view-dupes" class="view">
+        <div class="toolbar">
+          <label>Folder <input id="dp-root" style="width:240px" placeholder="C:\Users\..."></label>
+          <button class="btn sm sec" id="dp-pick">Browse…</button>
+          <label>Min KB <input id="dp-minkb" type="number" style="width:70px" value="100"></label>
+          <button class="btn sm" id="dp-go">Scan duplicates</button>
+          <span class="grow"></span><span class="muted mono" id="dp-sub"></span>
+          <button class="btn sm danger" id="dp-recycle">Recycle selected</button>
+        </div>
+        <div class="vbody" id="dp-body"></div>
+      </section>
+      <section id="view-recover" class="view">
+        <div class="toolbar">
+          <div class="chips"><span class="chip on" data-rtab="recycle">Recycle Bin</span><span class="chip" data-rtab="shadow">Previous versions (snapshots)</span></div>
+          <span class="grow"></span>
+          <button class="btn sm sec" id="rc-refresh">Refresh</button>
+          <button class="btn sm" id="rc-restore">Restore selected…</button>
+        </div>
+        <div class="vbody" id="rc-body"></div>
+      </section>
+      <section id="view-usb" class="view">
+        <div class="toolbar"><button class="btn sm" id="ub-refresh">Refresh</button>
+          <span class="grow"></span>
+          <label title="Blocks writes to all removable USB storage (registry policy)">USB write-protect <span class="switch" id="ub-wp"></span></label>
+        </div>
+        <div class="vbody" id="ub-body"></div>
+      </section>
+      <section id="view-tools" class="view">
+        <div class="vhead"><span class="vt"><b>//</b> Tools</span></div>
+        <div class="vbody" id="tl-body"></div>
+      </section>
+      <section id="view-settings" class="view">
+        <div class="vhead"><span class="vt"><b>//</b> Settings</span></div>
+        <div class="vbody" id="st-body"></div>
+      </section>
+    </div>
+  </div>
+  <div id="statusbar">
+    <span class="st" id="sb-disks"></span>
+    <span class="st" id="sb-sel"></span>
+    <span class="grow"></span>
+    <span class="st" id="sb-jobs"></span>
+    <span class="st click" id="sb-admin"></span>
+  </div>
+</div>
+<div id="jobs"></div>
+<div id="ctxmenu" class="hidden"></div>
+<div id="modal" class="hidden"><div class="mbox"><div id="m-title"></div><div id="m-body"></div><div id="m-buttons"></div></div></div>
+<div id="toasts"></div>
+<script src="js/core.js"></script>
+<script src="js/app.js"></script>
+<script src="js/views.js"></script>
+<script>boot();</script>
+<script src="../suite.js"></script></body>
+</html>

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>XenoSuite — Audit</title>
+<link rel="stylesheet" href="../disk/style.css">
+<style>
+  html, body { height:100%; }
+  #app { height:100%; display:flex; flex-direction:column; }
+  #content { flex:1; min-height:0; display:flex; flex-direction:column; }
+  #content > .view { flex:1; min-height:0; display:flex; flex-direction:column; }
+  #a-body { flex:1; min-height:0; overflow-y:auto; }
+  #audit-head { display:flex; align-items:center; gap:18px; margin-bottom:16px; flex-wrap:wrap; }
+  .grade { font:700 40px var(--mono); width:72px; height:72px; border-radius:12px; display:flex; align-items:center; justify-content:center; color:#fff; }
+  .sevrow { display:flex; gap:10px; flex-wrap:wrap; }
+  .sevpill { padding:6px 12px; border-radius:8px; font:600 13px var(--mono); }
+  .sv-high{background:rgba(241,76,76,.16);color:#ff7b7b} .sv-medium{background:rgba(204,167,0,.18);color:#e8c34a}
+  .sv-low{background:rgba(79,156,249,.15);color:#6fb0ff} .sv-info{background:var(--hover);color:var(--fg2)}
+  .finding { border:1px solid var(--border); border-left:3px solid var(--fg3); border-radius:8px; padding:12px 14px; margin-bottom:10px; background:var(--panel); }
+  .finding.high{border-left-color:var(--err)} .finding.medium{border-left-color:var(--warn)} .finding.low{border-left-color:var(--accent)} .finding.info{border-left-color:var(--fg3)}
+  .finding .ft { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+  .finding .ftitle { font-weight:600; font-size:13.5px; }
+  .finding .fdetail { color:var(--fg2); font-size:12.5px; margin:6px 0; }
+  .finding .ffix { color:var(--fg); font-size:12.5px; background:var(--bg3); border-radius:5px; padding:6px 10px; margin-top:4px; }
+  .finding .ffix b { color:var(--accent); }
+  .catsplit { margin:18px 0 8px; font:600 11px var(--mono); color:var(--accent); letter-spacing:.6px; text-transform:uppercase; }
+</style>
+</head>
+<body class="dark">
+<div id="app">
+  <div id="menubar">
+    <span class="brand">XENO</span><span class="brand2">SUITE</span>
+    <span class="mright"><span id="mb-admin"></span><span id="mb-host"></span></span>
+  </div>
+  <div id="content">
+    <section class="view active">
+      <div class="toolbar">
+        <button class="btn" id="a-scan">Run full scan</button>
+        <button class="btn sec" id="a-gui">Open VulnAudit (for one-click fixes)</button>
+        <button class="btn sec" id="a-html">Open HTML report</button>
+        <span class="grow"></span>
+        <button class="btn sec" id="a-path">Set VulnAudit.exe…</button>
+        <span class="muted mono" id="a-when"></span>
+      </div>
+      <div class="vbody" id="a-body"><div class="empty">Loading…</div></div>
+    </section>
+  </div>
+</div>
+<div id="toasts"></div>
+<script src="audit.js"></script>
+<script src="../suite.js"></script>
+</body>
+</html>

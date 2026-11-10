@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>XenoMon</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="dark">
+<div id="boot"><h1><b>XENO</b>MON</h1><div class="bl" id="boot-log"><div>init webview… ok</div></div></div>
+<div id="app">
+  <div id="menubar">
+    <span class="brand">XENO</span><span class="brand2">MON</span>
+    <span class="mtop" data-menu="file">File</span>
+    <span class="mtop" data-menu="view">View</span>
+    <span class="mtop" data-menu="tools">Tools</span>
+    <span class="mtop" data-menu="help">Help</span>
+    <span class="mright"><span id="mb-host"></span><span id="mb-clock"></span></span>
+  </div>
+  <div id="main">
+    <div id="activitybar">
+      <button data-view="overview" class="act active" title="Overview (1)">&#xE80F;</button>
+      <button data-view="perf" class="act" title="Performance (2)">&#xE9D9;</button>
+      <button data-view="procs" class="act" title="Processes (3)">&#xE8FD;</button>
+      <button data-view="sensors" class="act" title="Sensors (4)">&#xE950;</button>
+      <button data-view="network" class="act" title="Network (5)">&#xE839;</button>
+      <button data-view="disks" class="act" title="Disks (6)">&#xEDA2;</button>
+      <button data-view="services" class="act" title="Services (7)">&#xE912;</button>
+      <button data-view="startup" class="act" title="Startup apps (8)">&#xE7E8;</button>
+      <button data-view="system" class="act" title="System info (9)">&#xE946;</button>
+      <button data-view="health" class="act" title="Health (0)">&#xE95E;</button>
+      <div class="grow"></div>
+      <button data-view="mini" class="act" title="Mini overlay (Ctrl+M)">&#xE73F;</button>
+      <button data-view="settings" class="act" title="Settings (Ctrl+,)">&#xE713;</button>
+    </div>
+    <div id="content">
+      <section id="view-overview" class="view active">
+        <div class="vhead"><span class="vt"><b>//</b> Overview</span><span class="vs" id="ov-sub"></span></div>
+        <div class="vbody" id="ov-body"></div>
+      </section>
+      <section id="view-perf" class="view">
+        <div class="vhead"><span class="vt"><b>//</b> Performance</span><span class="vs" id="pf-sub"></span><span class="grow"></span>
+          <button class="btn sm sec" id="pf-cores-toggle">Per-thread graphs</button></div>
+        <div id="perf-wrap"><div id="perf-nav"></div><div id="perf-detail"></div></div>
+      </section>
+      <section id="view-procs" class="view">
+        <div class="toolbar">
+          <input type="search" id="pr-filter" class="filter" placeholder="Filter by name, PID, user, path…  (Ctrl+F)" spellcheck="false">
+          <button class="btn sm sec" id="pr-tree" title="Group child processes under parents">Tree</button>
+          <button class="btn sm sec" id="pr-freeze" title="Freeze sort order (rows still update)">Freeze order</button>
+          <span class="grow"></span>
+          <span class="muted mono" id="pr-count"></span>
+          <button class="btn sm sec" id="pr-run">Run new task…</button>
+          <button class="btn sm danger" id="pr-end" title="End task (Del)">End task</button>
+        </div>
+        <div id="proc-split">
+          <div class="tablewrap" id="pr-wrap"><table class="t" id="pr-table"><thead></thead><tbody></tbody></table></div>
+          <div id="pd-sash"></div>
+          <div id="proc-detail" class="hidden"></div>
+        </div>
+      </section>
+      <section id="view-sensors" class="view">
+        <div class="toolbar">
+          <input type="search" id="se-filter" class="filter" placeholder="Filter sensors…" spellcheck="false">
+          <div class="chips" id="se-types"></div>
+          <span class="grow"></span>
+          <button class="btn sm sec" id="se-reset">Reset min/max</button>
+          <button class="btn sm sec" id="se-report">Full HW report</button>
+          <button class="btn sm" id="se-log">Start CSV log</button>
+        </div>
+        <div class="vbody" style="padding-top:8px">
+          <div id="se-pinned" class="grid g-tiles"></div>
+          <table class="t" id="se-table"><thead><tr><th style="width:24px"></th><th>Sensor</th><th class="r">Value</th><th class="r">Min</th><th class="r">Max</th><th>History</th><th>Type</th></tr></thead><tbody></tbody></table>
+        </div>
+      </section>
+      <section id="view-network" class="view">
+        <div class="vhead"><span class="vt"><b>//</b> Network</span><span class="vs" id="nw-sub"></span><span class="grow"></span><button class="btn sm sec" id="nw-ping-edit" title="Hosts pinged every 2 s">Latency targets…</button></div>
+        <div class="vbody" style="flex:0 0 auto;max-height:52%;padding-bottom:10px"><div id="nw-ping" class="grid g-tiles" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr));margin-bottom:12px"></div><div id="nw-cards" class="grid g-tiles" style="grid-template-columns:repeat(auto-fill,minmax(360px,1fr))"></div></div>
+        <div class="toolbar" style="border-top:1px solid var(--border)">
+          <span class="vt muted" style="font-size:11px;font-weight:600;letter-spacing:.5px">CONNECTIONS</span>
+          <input type="search" id="nw-filter" class="filter" placeholder="Filter by process, IP, port, state…" spellcheck="false">
+          <div class="chips"><span class="chip on" data-nf="listen">Show listening</span><span class="chip" data-nf="loop">Show loopback</span><span class="chip on" data-nf="udp">Show UDP</span></div>
+          <span class="grow"></span><span class="muted mono" id="nw-count"></span>
+        </div>
+        <div class="tablewrap"><table class="t" id="nw-table"><thead></thead><tbody></tbody></table></div>
+      </section>
+      <section id="view-disks" class="view">
+        <div class="vhead"><span class="vt"><b>//</b> Disks &amp; volumes</span></div>
+        <div class="vbody" id="dk-body"></div>
+      </section>
+      <section id="view-services" class="view">
+        <div class="toolbar">
+          <input type="search" id="sv-filter" class="filter" placeholder="Filter services…" spellcheck="false">
+          <div class="chips"><span class="chip on" data-sf="all">All</span><span class="chip" data-sf="Running">Running</span><span class="chip" data-sf="Stopped">Stopped</span></div>
+          <span class="grow"></span><span class="muted mono" id="sv-count"></span>
+          <button class="btn sm sec" id="sv-refresh">Refresh</button>
+        </div>
+        <div class="tablewrap"><table class="t" id="sv-table"><thead></thead><tbody></tbody></table></div>
+      </section>
+      <section id="view-startup" class="view">
+        <div class="toolbar"><span class="muted">Toggling backs up the StartupApproved registry key to <span class="mono">Documents\XenoSuite\regbackup</span> first.</span>
+          <span class="grow"></span><span class="muted mono" id="su-count"></span><button class="btn sm sec" id="su-refresh">Refresh</button></div>
+        <div class="tablewrap"><table class="t" id="su-table"><thead></thead><tbody></tbody></table></div>
+      </section>
+      <section id="view-system" class="view">
+        <div class="vhead"><span class="vt"><b>//</b> System</span><span class="grow"></span><button class="btn sm sec" id="sy-copy">Copy as text</button></div>
+        <div class="vbody" id="sy-body"><div class="muted">Querying WMI…</div></div>
+      </section>
+      <section id="view-health" class="view">
+        <div class="vhead"><span class="vt"><b>//</b> Health</span><span class="vs" id="hl-sub"></span><span class="grow"></span>
+          <div class="chips"><span class="chip" data-hd="1">24 h</span><span class="chip on" data-hd="7">7 days</span><span class="chip" data-hd="30">30 days</span></div>
+          <button class="btn sm sec" id="hl-refresh">Rescan</button></div>
+        <div class="vbody">
+          <div class="grid g-tiles" id="hl-tiles"></div>
+          <div class="grid g-2 sec-gap">
+            <div class="card"><div class="ch">Stability events<span class="sub">System &amp; Application logs</span></div><div id="hl-events"><div class="muted">…</div></div></div>
+            <div class="card"><div class="ch">System</div><div class="kv" id="hl-sys"></div>
+              <div class="ch sec-gap">Pending restart</div><div id="hl-reboot"></div>
+              <div class="ch sec-gap">Security at a glance</div><div class="kv" id="hl-sec"></div></div>
+          </div>
+          <div class="grid g-2 sec-gap">
+            <div class="card" id="hl-apps-card"><div class="ch">App crashes &amp; hangs<span class="sub">by program</span></div><table class="t" id="hl-apps"></table></div>
+            <div class="card" id="hl-dev-card"><div class="ch">Devices with driver problems<span class="sub">Device Manager yellow bangs</span></div><div id="hl-dev"></div></div>
+          </div>
+          <div class="grid g-2 sec-gap">
+            <div class="card"><div class="ch">Signed-in users<span class="sub">console + RDP sessions</span></div><table class="t" id="hl-sess"></table></div>
+            <div class="card"><div class="ch">File sharing (SMB)<span class="sub">shares · who's connected · mapped drives</span></div><div id="hl-smb"></div></div>
+          </div>
+        </div>
+      </section>
+      <section id="view-settings" class="view">
+        <div class="vhead"><span class="vt"><b>//</b> Settings</span></div>
+        <div class="vbody" id="st-body"></div>
+      </section>
+    </div>
+  </div>
+  <div id="statusbar">
+    <span class="st click" id="sb-cpu" title="CPU"></span>
+    <span class="st click" id="sb-mem" title="Memory"></span>
+    <span class="st click" id="sb-gpu" title="GPU"></span>
+    <span class="st click" id="sb-temp" title="CPU temperature"></span>
+    <span class="st" id="sb-net"></span>
+    <span class="st" id="sb-alert"></span>
+    <span class="grow"></span>
+    <span class="st" id="sb-procs"></span>
+    <span class="st" id="sb-up"></span>
+    <span class="st click" id="sb-log" title="CSV logging"></span>
+    <span class="st click" id="sb-int" title="Sample interval"></span>
+    <span class="st" id="sb-cost" title="Sampling cost per tick"></span>
+    <span class="st" id="sb-admin"></span>
+  </div>
+</div>
+<div id="mini"></div>
+<div id="ctxmenu" class="hidden"></div>
+<div id="modal" class="hidden"><div class="mbox"><div id="m-title"></div><div id="m-body"></div><input id="m-input" spellcheck="false"><div id="m-buttons"></div></div></div>
+<div id="toasts"></div>
+<div id="tip" class="chart-tip hidden"></div>
+<script src="js/core.js"></script>
+<script src="js/chart.js"></script>
+<script src="js/app.js"></script>
+<script src="js/perf.js"></script>
+<script src="js/procs.js"></script>
+<script src="js/views.js"></script>
+<script>boot();</script>
+<script src="../suite.js"></script></body>
+</html>
