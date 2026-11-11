@@ -140,7 +140,7 @@ function diskCard(d) {
       <span>Bus <b>${esc(d.bus || '—')}</b></span>
       <span>Media <b>${esc(d.media || '—')}</b></span>
       ${d.serial ? `<span>S/N <b>${esc(d.serial)}</b></span>` : ''}
-      ${d.spindle > 0 ? `<span>${d.spindle} RPM</span>` : ''}
+      ${d.spindle > 0 && d.spindle < 100000 ? `<span>${d.spindle} RPM</span>` : ''}
       <span>Health <b>${esc(d.health)}</b></span>
     </div>
     <div class="pillbar"></div>
