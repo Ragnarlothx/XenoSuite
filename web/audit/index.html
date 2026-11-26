@@ -23,6 +23,10 @@
   .finding .fdetail { color:var(--fg2); font-size:12.5px; margin:6px 0; }
   .finding .ffix { color:var(--fg); font-size:12.5px; background:var(--bg3); border-radius:5px; padding:6px 10px; margin-top:4px; }
   .finding .ffix b { color:var(--accent); }
+  .fev { margin:4px 0 6px; padding-left:18px; color:var(--fg2); font:12px var(--mono); }
+  .passed summary { cursor:pointer; }
+  .pass-row { padding:4px 0; font-size:12.5px; border-bottom:1px solid var(--border); }
+  .pass-row .ok { color:#2f9e62; font-weight:700; }
   .catsplit { margin:18px 0 8px; font:600 11px var(--mono); color:var(--accent); letter-spacing:.6px; text-transform:uppercase; }
 </style>
 </head>
@@ -36,10 +40,10 @@
     <section class="view active">
       <div class="toolbar">
         <button class="btn" id="a-scan">Run full scan</button>
-        <button class="btn sec" id="a-gui">Open VulnAudit (for one-click fixes)</button>
+        <button class="btn sec" id="a-gui" hidden>Open VulnAudit (one-click fixes)</button>
         <button class="btn sec" id="a-html">Open HTML report</button>
         <span class="grow"></span>
-        <button class="btn sec" id="a-path">Set VulnAudit.exe…</button>
+        <button class="btn sec" id="a-path" title="Optional: the older VulnAudit tool adds one-click fixes">VulnAudit (optional)…</button>
         <span class="muted mono" id="a-when"></span>
       </div>
       <div class="vbody" id="a-body"><div class="empty">Loading…</div></div>

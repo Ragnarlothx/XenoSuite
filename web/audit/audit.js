@@ -1,4 +1,4 @@
-/* XenoSuite Audit tab — drives the VulnAudit engine and renders its report. */
+/* XenoSuite Audit tab: runs the built-in security audit (read-only) and renders its report. */
 'use strict';
 const Host = (() => {
   const wv = window.chrome && window.chrome.webview;
@@ -32,15 +32,15 @@ async function init() {
   $('#a-gui').onclick = () => Host.call('auditRunGui').catch(e => toast(e.message, 'error'));
   $('#a-html').onclick = () => Host.call('auditOpenHtml').catch(e => toast(e.message, 'error'));
   $('#a-path').onclick = setPath;
+  Host.on('auditProgress', p => { const el = $('#a-progress'); if (el) el.textContent = p.title === 'done' ? 'Finishing…' : `Checking ${p.i + 1} of ${p.n}: ${p.title}`; });
 }
 
 function render() {
-  if (!STATUS.found) {
-    $('#a-body').innerHTML = `<div class="empty">VulnAudit engine not found.<br><br>Click <b>Set VulnAudit.exe…</b> and point to <span class="mono">Project 4\\dist\\VulnAudit.exe</span>.</div>`;
-    $('#a-scan').disabled = true; $('#a-gui').disabled = true; $('#a-html').disabled = true;
-    return;
-  }
+  // VulnAudit is optional now: its buttons only show when it's already set up
+  $('#a-gui').hidden = !STATUS.legacyExe;
+  $('#a-html').disabled = !STATUS.hasHtml;
   $('#a-when').textContent = STATUS.reportWhen ? 'Last scan: ' + STATUS.reportWhen : 'No scan yet';
+  if (!STATUS.hasReport) $('#a-body').innerHTML = `<div class="empty">Built-in security audit: 33 read-only checks of Windows security settings<br>(antivirus, firewall, updates, UAC, SMBv1, remote desktop, BitLocker, Secure Boot, TPM, accounts, open ports, startup apps…).<br><br>Nothing is changed. Click <b>Run full scan</b>.${STATUS.isAdmin ? '' : '<br><br><span class="muted">Not running as administrator: a few checks will be limited.</span>'}</div>`;
 }
 
 async function setPath() {
@@ -51,7 +51,7 @@ async function setPath() {
 }
 
 async function scan() {
-  $('#a-body').innerHTML = `<div class="empty">Running full security + health audit… this can take a minute.</div>`;
+  $('#a-body').innerHTML = `<div class="empty">Running the security audit (read-only)…<br><br><span class="mono muted" id="a-progress">Starting…</span></div>`;
   $('#a-scan').disabled = true;
   try { const r = await Host.call('auditScan'); STATUS = await Host.call('auditStatus'); render(); draw(r.report, r.when); toast('Scan complete', 'ok'); }
   catch (e) { toast(e.message, 'error'); $('#a-body').innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
@@ -87,7 +87,13 @@ function draw(rep, when) {
     const split = document.createElement('div'); split.className = 'catsplit'; split.textContent = cat + ' (' + cats[cat].length + ')'; body.appendChild(split);
     cats[cat].sort((a, b) => SEV.indexOf(a.severity) - SEV.indexOf(b.severity)).forEach(f => body.appendChild(card(f)));
   });
-  if (!findings.length) body.appendChild(h('<div class="empty">No findings — clean.</div>'));
+  if (!findings.length) body.appendChild(h('<div class="empty">No problems found.</div>'));
+  if (rep.passed && rep.passed.length) {
+    const d = document.createElement('details'); d.className = 'passed';
+    d.innerHTML = `<summary class="catsplit">Passed checks (${rep.passed.length})</summary>` + rep.passed.map(p => `<div class="pass-row"><span class="ok">✓</span> <b>${esc(p.title)}</b> <span class="muted">· ${esc(p.detail || '')}</span></div>`).join('');
+    body.appendChild(d);
+  }
+  if (rep.isAdmin === false) body.appendChild(h('<div class="muted" style="margin-top:12px">Scanned without administrator rights: some checks were limited.</div>'));
 }
 function worst(arr) { return Math.max(...arr.map(f => 3 - SEV.indexOf(f.severity))); }
 function h(html) { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstChild; }
@@ -96,13 +102,14 @@ function card(f) {
   const el = document.createElement('div'); el.className = 'finding ' + f.severity;
   el.innerHTML = `<div class="ft"><span class="sevpill sv-${f.severity}" style="padding:1px 8px;font-size:11px">${esc(f.severity)}</span><span class="ftitle">${esc(f.title)}</span></div>
     ${f.detail ? `<div class="fdetail">${esc(f.detail)}</div>` : ''}
+    ${f.evidence && f.evidence.length ? `<ul class="fev">${f.evidence.slice(0, 8).map(e => `<li>${esc(e)}</li>`).join('')}${f.evidence.length > 8 ? `<li>…and ${f.evidence.length - 8} more</li>` : ''}</ul>` : ''}
     ${f.fix && f.fix !== 'No action needed.' ? `<div class="ffix"><b>Fix:</b> ${esc(f.fix)}</div>` : ''}
     <div style="margin-top:8px;display:flex;gap:6px">
       ${f.cmd ? `<button class="btn sm sec cpy">Copy command</button>` : ''}
-      ${f.link ? `<button class="btn sm sec lnk">Open link</button>` : ''}
+      ${f.link ? `<button class="btn sm sec lnk">Open settings</button>` : ''}
     </div>`;
   const cpy = el.querySelector('.cpy'); if (cpy) cpy.onclick = () => { navigator.clipboard?.writeText(f.cmd); toast('Copied', 'ok'); };
-  const lnk = el.querySelector('.lnk'); if (lnk) lnk.onclick = () => Host.call('openFile', { path: f.link });
+  const lnk = el.querySelector('.lnk'); if (lnk) lnk.onclick = () => Host.call('auditOpenFix', { uri: f.link }).catch(e => toast(e.message, 'error'));
   return el;
 }
 

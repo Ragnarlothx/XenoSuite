@@ -1,7 +1,7 @@
 # XenoSuite
 
 A Windows system toolkit by **Xeno**: a live hardware/system monitor, a full disk manager with health,
-recovery and imaging tools, and a security-audit front end, in one app.
+recovery and imaging tools, and a built-in security audit, in one app.
 C# .NET 8 WPF host with a WebView2 UI.
 
 ![Monitor overview](docs/screenshots/monitor-overview.png)
@@ -17,7 +17,7 @@ C# .NET 8 WPF host with a WebView2 UI.
 |---|---|
 | [**Monitor**](#monitor) | Live CPU, memory, GPUs, disks, network, temperatures, fans; processes, services, startup apps; system report |
 | [**Disk**](#disk) | Partitions and volumes, SMART health, surface scans, file finder, duplicates, space analysis, recovery, USB tools, imaging, benchmarks |
-| [**Audit**](#audit) | Runs a security-audit scanner and shows its graded report |
+| [**Audit**](#audit) | Built-in security audit: 33 read-only checks, graded A–F, with fixes |
 
 Switch modules with the tabs at the top. Everything runs locally; nothing is sent anywhere.
 
@@ -79,9 +79,26 @@ Long operations (scans, imaging, benchmarks, searches) run as background jobs wi
 
 ## Audit
 
-A front end for a separate security-audit scanner (`VulnAudit.exe`): shows whether it's installed, runs a scan,
-and displays the graded report (A–F with high/medium/low findings) or opens the full HTML report.
-Point XenoSuite at the scanner once and it remembers the location.
+A **built-in security audit**: nothing else to download or install. 33 read-only checks of Windows
+security settings, each with a pass/warn/fail result, evidence and the exact place to change it:
+
+| Area | Checks |
+|---|---|
+| **Antivirus** | Active antivirus, Microsoft Defender settings, antivirus exclusions |
+| **Updates** | Whether this Windows version still gets security updates, recent Windows Update activity, pending restart |
+| **Firewall & network** | Firewall profiles, network profile, ports exposed to the network, hosts file, proxy settings |
+| **Hardening** | UAC, SMBv1, BitLocker, Secure Boot, TPM, core isolation (memory integrity), LSA protection, SmartScreen, Smart App Control, vulnerable driver blocklist, WDigest password caching, PowerShell 2.0, PowerShell script policy, AutoRun/AutoPlay |
+| **Remote access** | Remote Desktop, Remote Assistance, remote-access services |
+| **Accounts** | Built-in accounts (Administrator, Guest), members of Administrators |
+| **Persistence** | Startup programs and scheduled tasks with unsigned or missing files (signatures checked with Windows' own verifier, catalog-signed system files included), unquoted service paths |
+
+You get a score out of 100 with a grade from **A** to **F**. Each problem shows its evidence and the fix,
+and **Open settings** jumps to the matching Windows Settings or Windows Security page. The audit only
+**reads** the system and never changes a setting. Run XenoSuite as administrator for the complete set of
+checks.
+
+The last report is saved in `%APPDATA%\XenoSuite\audit\` (`report.json` and a standalone `report.html`).
+The older external VulnAudit tool still works as an optional extra for one-click fixes; the tab doesn't need it.
 
 ---
 

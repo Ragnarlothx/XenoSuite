@@ -53,7 +53,7 @@ namespace XenoSuite
             "openDiskMgmt","openFile","optimizeVolume","recycleFiles","recycleList","recycleRestore","removeLetter","repairVolume",
             "resizePartition","reveal","setLabel","setLetter","setPartAttr","setUsbWriteProtect","shadowBrowse","shadowCreate",
             "shadowList","shadowRestore","spaceChildren","spaceScan","spaceTypes","supportedSize","surfaceScan","usbWriteProtect" };
-        static readonly HashSet<string> AuditMethods = new() { "auditStatus", "auditRunGui", "auditScan", "auditOpenHtml", "auditSetPath", "auditReport" };
+        static readonly HashSet<string> AuditMethods = new() { "auditStatus", "auditRunGui", "auditScan", "auditOpenHtml", "auditSetPath", "auditReport", "auditOpenFix" };
         static readonly HashSet<string> UiMethods = new() {
             "ready","suiteNav","setInterval","pause","setTopmost","setMini","icons","logStart","logStop","setDarkTitle","setTheme",
             "devTools","restartAdmin","minimize","quit","loadSettings","saveSettings","log","pickFolder","pickFile","saveFile","hwMeta" };
