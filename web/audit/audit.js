@@ -19,6 +19,7 @@ const esc = s => s == null ? '' : String(s).replace(/[&<>"']/g, c => ({ '&': '&a
 function toast(msg, kind) { const t = document.createElement('div'); t.className = 'toast ' + (kind || ''); t.textContent = msg; $('#toasts').appendChild(t); setTimeout(() => t.remove(), kind === 'error' ? 7000 : 3500); }
 
 const SEV = ['high', 'medium', 'low', 'info'];
+const severityOf = finding => SEV.includes(finding.severity) ? finding.severity : 'info';
 let STATUS = {};
 
 async function init() {
@@ -68,7 +69,7 @@ function draw(rep, when) {
   if (!rep) { $('#a-body').innerHTML = '<div class="empty">No report. Run a scan.</div>'; return; }
   const findings = (rep.findings || []).filter(f => !f.ignored);
   const counts = { high: 0, medium: 0, low: 0, info: 0 };
-  findings.forEach(f => { counts[f.severity] = (counts[f.severity] || 0) + 1; });
+  findings.forEach(f => { counts[severityOf(f)]++; });
   const body = $('#a-body');
   body.innerHTML = '';
   const head = document.createElement('div'); head.id = 'audit-head';
@@ -80,13 +81,21 @@ function draw(rep, when) {
   body.appendChild(head);
 
   // group by category, severity order within
-  const cats = {};
-  findings.forEach(f => (cats[f.category || 'Other'] = cats[f.category || 'Other'] || []).push(f));
-  const catNames = Object.keys(cats).sort((a, b) => worst(cats[b]) - worst(cats[a]));
-  catNames.forEach(cat => {
-    const split = document.createElement('div'); split.className = 'catsplit'; split.textContent = cat + ' (' + cats[cat].length + ')'; body.appendChild(split);
-    cats[cat].sort((a, b) => SEV.indexOf(a.severity) - SEV.indexOf(b.severity)).forEach(f => body.appendChild(card(f)));
-  });
+  const categories = new Map();
+  for (const finding of findings) {
+    const category = finding.category || 'Other';
+    if (!categories.has(category)) categories.set(category, []);
+    categories.get(category).push(finding);
+  }
+  const groups = [...categories].sort((a, b) => worst(b[1]) - worst(a[1]));
+  for (const [category, entries] of groups) {
+    const heading = document.createElement('div');
+    heading.className = 'catsplit';
+    heading.textContent = `${category} (${entries.length})`;
+    body.appendChild(heading);
+    entries.sort((a, b) => SEV.indexOf(severityOf(a)) - SEV.indexOf(severityOf(b)));
+    for (const finding of entries) body.appendChild(card(finding));
+  }
   if (!findings.length) body.appendChild(h('<div class="empty">No problems found.</div>'));
   if (rep.passed && rep.passed.length) {
     const d = document.createElement('details'); d.className = 'passed';
@@ -95,12 +104,13 @@ function draw(rep, when) {
   }
   if (rep.isAdmin === false) body.appendChild(h('<div class="muted" style="margin-top:12px">Scanned without administrator rights: some checks were limited.</div>'));
 }
-function worst(arr) { return Math.max(...arr.map(f => 3 - SEV.indexOf(f.severity))); }
+function worst(arr) { return Math.max(...arr.map(f => 3 - SEV.indexOf(severityOf(f)))); }
 function h(html) { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstChild; }
 
 function card(f) {
-  const el = document.createElement('div'); el.className = 'finding ' + f.severity;
-  el.innerHTML = `<div class="ft"><span class="sevpill sv-${f.severity}" style="padding:1px 8px;font-size:11px">${esc(f.severity)}</span><span class="ftitle">${esc(f.title)}</span></div>
+  const severity = severityOf(f);
+  const el = document.createElement('div'); el.className = 'finding ' + severity;
+  el.innerHTML = `<div class="ft"><span class="sevpill sv-${severity}" style="padding:1px 8px;font-size:11px">${severity}</span><span class="ftitle">${esc(f.title)}</span></div>
     ${f.detail ? `<div class="fdetail">${esc(f.detail)}</div>` : ''}
     ${f.evidence && f.evidence.length ? `<ul class="fev">${f.evidence.slice(0, 8).map(e => `<li>${esc(e)}</li>`).join('')}${f.evidence.length > 8 ? `<li>…and ${f.evidence.length - 8} more</li>` : ''}</ul>` : ''}
     ${f.fix && f.fix !== 'No action needed.' ? `<div class="ffix"><b>Fix:</b> ${esc(f.fix)}</div>` : ''}

@@ -104,17 +104,17 @@ The older external VulnAudit tool still works as an optional extra for one-click
 
 ## Requirements
 
-- Windows 10 or 11 (x64)
-- [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0) and WebView2 (built into Windows 11)
-- **Run as administrator** for full functionality: hardware sensors, SMART, disk management and service control need it
+- Windows 10 or 11 (x64) with the Microsoft Edge WebView2 Runtime
+- For the portable build, extract the entire ZIP and run `XenoSuite.exe`. The package includes .NET 8 and the Audit module.
+- Approve the Windows administrator prompt, then select **Audit → Run full scan** to run the built-in checks.
 
 ## Build
 
-```
-dotnet build -c Release -o dist
+```powershell
+dotnet publish -c Release -r win-x64 --self-contained true -o dist\XenoSuite
 ```
 
-Needs the .NET 8 SDK. Hardware sensors come from
+Package everything in `dist\XenoSuite`, including the `web` folder. Building requires a .NET SDK that supports .NET 8. Hardware sensors come from
 [LibreHardwareMonitor](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor).
 
 ## Project layout
